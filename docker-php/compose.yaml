@@ -1,0 +1,39 @@
+services:
+    db:
+        image: alpine-mariadb
+        container_name: mariadb_c
+        hostname: mariadb-hostname
+        restart: always
+        volumes:
+            - db-volume:/var/lib/mysql
+        networks:
+            net-lamp:
+                ipv4_address: 10.5.0.5
+
+    app:
+        image: alpine-apache-php8.3
+        container_name: apache-php_c
+        hostname: apache-php-hostname
+        restart: always
+        volumes:
+            # applications directory (php_tuto, restou, ...)
+            - ./app:/var/www/localhost/htdocs
+        networks:
+            net-lamp:
+                ipv4_address: 10.5.0.6
+        ports:
+            - 8080:80
+        depends_on:
+            - db
+
+volumes:
+    db-volume:
+
+networks:
+  net-lamp:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.5.0.0/16
+         gateway: 10.5.0.1
+
