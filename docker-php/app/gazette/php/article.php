@@ -36,32 +36,8 @@ function affContenuL() : void {
 
     /*Test Hash*/
 
-    $idArticle = 0;
-    // Récupération des paramètres d'URL
-    $idArticleChiffre = $_GET['id'];
-    $signature = $_GET['signature'];
-    $iv = base64_decode(urldecode($_GET['iv']));
-
-    // Ajout d'un octet nul à la fin de l'IV pour atteindre la longueur de 16 octets
-    $iv = str_pad($iv, 16, "\0");
-
-    // Déchiffrement de l'identifiant de l'article avec AES
-    $cleSecreteAES = "VotreCleSecreteAES"; // Clé secrète pour le chiffrement AES
-    $idArticle = openssl_decrypt($idArticleChiffre, 'aes-256-cbc', $cleSecreteAES, 0, $iv);
-
-    // Vérification de la signature HMAC
-    $cleSecreteHMAC = "VotreCleSecreteHMAC"; // Clé secrète pour la signature HMAC
-    $message = $idArticleChiffre;
-    $signatureCalculee = hash_hmac('sha256', $message, $cleSecreteHMAC);
-
-    // Vérifie si la signature est valide
-    if($signature === $signatureCalculee) {
-        // La signature est valide, vous pouvez traiter l'identifiant de l'article
-        echo "Identifiant de l'article : $idArticle";
-    } else {
-        // La signature est invalide, ne pas traiter l'identifiant de l'article
-        echo "Signature invalide. Accès refusé.";
-    }
+    
+    // echo "Identifiant de l'article :", $idArticle;
 
     /*Fin test Hash*/
 
@@ -70,12 +46,15 @@ function affContenuL() : void {
         return; // ==> fin de la fonction
     }
 
-    if (! estEntier($_GET['id'])){
-        affErreurL('L\'identifiant doit être un entier');
+    // Déchiffrer l'identifiant de l'article à partir de l'URL
+    $idArticle = dechiffrerIdArticleURL($_GET['id']);
+
+    if ($idArticle == FALSE){ // FALSE car la fonction de déchiffrage retourne false en cas d'erreur
+        affErreurL('La fonction de déchiffrage n\'a pas réussi a déchiffre cet id');
         return; // ==> fin de la fonction
     }
 
-    $id = (int)$_GET['id'];
+    $id = (int)$idArticle;
 
     if ($id <= 0){
         affErreurL('L\'identifiant doit être un entier strictement positif');

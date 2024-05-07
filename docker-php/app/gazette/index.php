@@ -35,30 +35,16 @@ ob_end_flush();
 function affContenuL() : void {
 
     /* Test HASH */
-    // Identifiant de l'article
-    $idArticle = 10;
 
-    // Chiffrement de l'identifiant de l'article avec AES
-    $cleSecreteAES = "VotreCleSecreteAES"; // Clé secrète pour le chiffrement AES
-    $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc')); // Vecteur d'initialisation
-    $identifiantChiffre = openssl_encrypt($idArticle, 'aes-256-cbc', $cleSecreteAES, 0, $iv);
+    // Chiffrer l'identifiant de l'article pour l'URL
+    $idArticle = '-1'; // Exemple d'identifiant d'article
+    $idArticleChiffrePourURL = chiffrerPourURL($idArticle);
 
-    // Construction du message à signer (identifiant de l'article chiffré)
-    $message = $identifiantChiffre;
-
-    // Création de la signature HMAC
-    $cleSecreteHMAC = "VotreCleSecreteHMAC"; // Clé secrète pour la signature HMAC
-    $signature = hash_hmac('sha256', $message, $cleSecreteHMAC);
-
-    // Construction de l'URL avec les paramètres chiffrés et signés
-    $urlArticle = "http://localhost:8080/gazette/php/article.php?id=$identifiantChiffre&signature=$signature&iv=" . urlencode(base64_encode($iv));
-
-
-
+    // Afficher l'URL avec l'identifiant chiffré
+   
     /* Fin test HASH */
-    
-    echo '<main>', '<p>  <a href="' . $urlArticle . '">Cliquez ici pour lire l\'article</a>',
- '</p>';
+    echo '<main>';
+    echo '<a href="http://localhost:8080/gazette/php/article.php?id=', $idArticleChiffrePourURL, '">Cliquez ici</a>'; // Affichage test HASH
 
     $bd = bdConnect();
 
@@ -143,8 +129,11 @@ function affBlocTroisArticlesL(string $titreBloc, array $articles) : void {
 function bdSelectArticlesL(mysqli $bd, string $sql) : array {
     $res = [];
     $result = bdSendRequest($bd, $sql);
-    while ($t = mysqli_fetch_assoc($result)){
+    while ($t = mysqli_fetch_assoc($result)) {
+        // On chiffre l'ID de l'article
+        $chiffre = chiffrerPourURL($t['arID']);
         $res[$t['arID']] = $t['arTitre'];
+        echo '<p>', $t['arID'], '    ' , $t['arTitre'], '</p>';
     }
 
     // Libération de la mémoire associée au résultat de la requête

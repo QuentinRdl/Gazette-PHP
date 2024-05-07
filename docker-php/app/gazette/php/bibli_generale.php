@@ -311,3 +311,49 @@ function affLigneInput(string $libelle, array $attributs = array(), string $pref
     }
     echo '></td></tr>';
 }
+
+
+// Définition de la clé de chiffrement
+define('CRYPT_KEY', 'TresTresSecuriseIciOnRigolePAS');
+
+/**
+ * Chiffre le string passé en paramètre pour le passer dans une URL.
+ *
+ * @param string $input L'identifiant de l'article à chiffrer
+ * @return string L'identifiant chiffré encodé en base64 pour l'URL
+ */
+function chiffrerPourURL(string $input): string {
+    // Chiffrement de l'identifiant de l'article avec AES
+    $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-128-cbc'));
+    $inputChiffre = openssl_encrypt($input, 'aes-128-cbc', CRYPT_KEY, 0, $iv);
+    
+    // Concaténation de l'IV et de l'identifiant chiffré
+    $donneesChiffrees = $iv . $inputChiffre;
+
+    // Encodage en base64 pour l'URL
+    $donneesChiffreesEncodees = base64_encode($donneesChiffrees);
+
+    // Encodage URL
+    return urlencode($donneesChiffreesEncodees);
+}
+
+/**
+ * Déchiffre l'identifiant de l'article chiffré dans l'URL.
+ *
+ * @param string $donneesChiffreesEncodees L'identifiant de l'article chiffré encodé en base64 pour l'URL
+ * @return string|false L'identifiant de l'article déchiffré ou false en cas d'erreur
+ */
+function dechiffrerIdArticleURL(string $donneesChiffreesEncodees): string|false {
+    // Décodage URL
+    $donneesChiffrees = base64_decode(urldecode($donneesChiffreesEncodees));
+
+    // Extraction de l'IV et de l'id chiffré
+    $ivLength = openssl_cipher_iv_length('aes-128-cbc');
+    $iv = substr($donneesChiffrees, 0, $ivLength);
+    $outputChiffre = substr($donneesChiffrees, $ivLength);
+
+    // Déchiffrement de l'id de l'article avec AES
+    $output = openssl_decrypt($outputChiffre, 'aes-128-cbc', CRYPT_KEY, 0, $iv);
+    
+    return $output !== false ? $output : false;
+}
