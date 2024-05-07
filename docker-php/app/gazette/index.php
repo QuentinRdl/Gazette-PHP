@@ -35,19 +35,25 @@ ob_end_flush();
 function affContenuL() : void {
 
     /* Test HASH */
-    $cleSecrete = "VotreCleSecrete";
-
     // Identifiant de l'article
     $idArticle = 10;
 
-    // Construction du message à signer (identifiant de l'article)
-    $message = $idArticle;
+    // Chiffrement de l'identifiant de l'article avec AES
+    $cleSecreteAES = "VotreCleSecreteAES"; // Clé secrète pour le chiffrement AES
+    $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc')); // Vecteur d'initialisation
+    $identifiantChiffre = openssl_encrypt($idArticle, 'aes-256-cbc', $cleSecreteAES, 0, $iv);
+
+    // Construction du message à signer (identifiant de l'article chiffré)
+    $message = $identifiantChiffre;
 
     // Création de la signature HMAC
-    $signature = hash_hmac('sha256', $message, $cleSecrete);
+    $cleSecreteHMAC = "VotreCleSecreteHMAC"; // Clé secrète pour la signature HMAC
+    $signature = hash_hmac('sha256', $message, $cleSecreteHMAC);
 
-    // Construction de l'URL avec le paramètre signé
-    $urlArticle = "http://localhost:8080/gazette/php/article.php?id=$idArticle&signature=$signature";
+    // Construction de l'URL avec les paramètres chiffrés et signés
+    $urlArticle = "http://localhost:8080/gazette/php/article.php?id=$identifiantChiffre&signature=$signature&iv=" . urlencode(base64_encode($iv));
+
+
 
     /* Fin test HASH */
     

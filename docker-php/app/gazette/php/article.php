@@ -37,34 +37,32 @@ function affContenuL() : void {
     /*Test Hash*/
 
     $idArticle = 0;
-    // Vérification de la présence du paramètre d'identifiant et de la signature
-    if(isset($_GET['id']) && isset($_GET['signature'])) {
-        // Identifiant de l'article et signature fournis dans l'URL
-        $idArticle = $_GET['id'];
-        $signature = $_GET['signature'];
-        
-        // Vérification de la signature HMAC
-        $cleSecrete = "VotreCleSecrete";
-        $message = $idArticle;
-        $signatureCalculee = hash_hmac('sha256', $message, $cleSecrete);
-        
-        // Vérifie si la signature est valide
-        if($signature === $signatureCalculee) {
-            // La signature est valide, vous pouvez traiter l'identifiant de l'article
-            // Afficher l'article ou effectuer d'autres opérations
-            echo "Identifiant de l'article : $idArticle";
-        } else {
-            // La signature est invalide, ne pas traiter l'identifiant de l'article
-            echo "Signature invalide. Accès refusé.";
-        }
+    // Récupération des paramètres d'URL
+    $idArticleChiffre = $_GET['id'];
+    $signature = $_GET['signature'];
+    $iv = base64_decode(urldecode($_GET['iv']));
+
+    // Ajout d'un octet nul à la fin de l'IV pour atteindre la longueur de 16 octets
+    $iv = str_pad($iv, 16, "\0");
+
+    // Déchiffrement de l'identifiant de l'article avec AES
+    $cleSecreteAES = "VotreCleSecreteAES"; // Clé secrète pour le chiffrement AES
+    $idArticle = openssl_decrypt($idArticleChiffre, 'aes-256-cbc', $cleSecreteAES, 0, $iv);
+
+    // Vérification de la signature HMAC
+    $cleSecreteHMAC = "VotreCleSecreteHMAC"; // Clé secrète pour la signature HMAC
+    $message = $idArticleChiffre;
+    $signatureCalculee = hash_hmac('sha256', $message, $cleSecreteHMAC);
+
+    // Vérifie si la signature est valide
+    if($signature === $signatureCalculee) {
+        // La signature est valide, vous pouvez traiter l'identifiant de l'article
+        echo "Identifiant de l'article : $idArticle";
     } else {
-        // Paramètre d'identifiant ou signature manquants
-        echo "Paramètres manquants. Accès refusé.";
+        // La signature est invalide, ne pas traiter l'identifiant de l'article
+        echo "Signature invalide. Accès refusé.";
     }
 
-    
-    
-    
     /*Fin test Hash*/
 
     if (! parametresControle('get', ['id'])){
