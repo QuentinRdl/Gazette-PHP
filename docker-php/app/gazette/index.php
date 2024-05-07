@@ -33,10 +33,28 @@ ob_end_flush();
  * @return  void
  */
 function affContenuL() : void {
-    echo '<main>';
+
+    /* Test HASH */
+    $cleSecrete = "VotreCleSecrete";
+
+    // Identifiant de l'article
+    $idArticle = 10;
+
+    // Construction du message à signer (identifiant de l'article)
+    $message = $idArticle;
+
+    // Création de la signature HMAC
+    $signature = hash_hmac('sha256', $message, $cleSecrete);
+
+    // Construction de l'URL avec le paramètre signé
+    $urlArticle = "http://localhost:8080/gazette/php/article.php?id=$idArticle&signature=$signature";
+
+    /* Fin test HASH */
+    
+    echo '<main>', '<p>  <a href="' . $urlArticle . '">Cliquez ici pour lire l\'article</a>',
+ '</p>';
 
     $bd = bdConnect();
-
 
     // génération des 3 derniers articles
     $sql0 = 'SELECT arID, arTitre

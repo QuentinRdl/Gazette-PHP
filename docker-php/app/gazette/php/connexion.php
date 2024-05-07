@@ -142,6 +142,7 @@ function traitementConnexion(): array {
 
     $_SESSION['pseudo'] = $donneesUtilisateur['utPseudo'];
     $_SESSION['redacteur'] = $donneesUtilisateur['utRedacteur'];
+    $_SESSION['connecte'] = 1;
     
     // redirection vers la page précédente ou index.php !
 

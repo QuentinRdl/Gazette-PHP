@@ -33,6 +33,40 @@ ob_end_flush();
  * @return  void
  */
 function affContenuL() : void {
+
+    /*Test Hash*/
+
+    $idArticle = 0;
+    // Vérification de la présence du paramètre d'identifiant et de la signature
+    if(isset($_GET['id']) && isset($_GET['signature'])) {
+        // Identifiant de l'article et signature fournis dans l'URL
+        $idArticle = $_GET['id'];
+        $signature = $_GET['signature'];
+        
+        // Vérification de la signature HMAC
+        $cleSecrete = "VotreCleSecrete";
+        $message = $idArticle;
+        $signatureCalculee = hash_hmac('sha256', $message, $cleSecrete);
+        
+        // Vérifie si la signature est valide
+        if($signature === $signatureCalculee) {
+            // La signature est valide, vous pouvez traiter l'identifiant de l'article
+            // Afficher l'article ou effectuer d'autres opérations
+            echo "Identifiant de l'article : $idArticle";
+        } else {
+            // La signature est invalide, ne pas traiter l'identifiant de l'article
+            echo "Signature invalide. Accès refusé.";
+        }
+    } else {
+        // Paramètre d'identifiant ou signature manquants
+        echo "Paramètres manquants. Accès refusé.";
+    }
+
+    
+    
+    
+    /*Fin test Hash*/
+
     if (! parametresControle('get', ['id'])){
         affErreurL('Il faut utiliser une URL de la forme : http://..../php/article.php?id=XXX');
         return; // ==> fin de la fonction
