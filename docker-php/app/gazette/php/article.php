@@ -32,14 +32,8 @@ ob_end_flush();
  *
  * @return  void
  */
-function affContenuL() : void {
-
-    /*Test Hash*/
-
-    
+function affContenuL() : void {  
     // echo "Identifiant de l'article :", $idArticle;
-
-    /*Fin test Hash*/
 
     if (! parametresControle('get', ['id'])){
         affErreurL('Il faut utiliser une URL de la forme : http://..../php/article.php?id=XXX');
@@ -150,32 +144,6 @@ function affContenuL() : void {
     '</main>';
 }
 
-
-//_______________________________________________________________
-/**
- * Conversion d'une date format AAAAMMJJHHMM au format JJ mois AAAA à HHhMM
- *
- * @param  int      $date   la date à afficher.
- *
- * @return string           la chaîne qui représente la date
- */
-function dateIntToStringL(int $date) : string {
-    // les champs date (coDate, arDatePubli, arDateModif) sont de type BIGINT dans la base de données
-    // donc pas besoin de les protéger avec htmlentities()
-
-    // si un article a été publié avant l'an 1000, ça marche encore :-)
-    $minutes = substr($date, -2);
-    $heure = (int)substr($date, -4, 2); //conversion en int pour supprimer le 0 de '07' pax exemple
-    $jour = (int)substr($date, -6, 2);
-    $mois = substr($date, -8, 2);
-    $annee = substr($date, 0, -8);
-
-    $months = getArrayMonths();
-
-    return $jour. ' '. mb_strtolower($months[$mois - 1], encoding:'UTF-8'). ' '. $annee . ' à ' . $heure . 'h' . $minutes;
-}
-
-
 //___________________________________________________________________
 /**
  * Renvoie une copie de la chaîne UTF8 transmise en paramètre après avoir mis sa
@@ -190,7 +158,6 @@ function upperCaseFirstLetterLowerCaseRemainderL(string $str) : string {
     $fc = mb_strtoupper(mb_substr($str, 0, 1, encoding:'UTF-8'));
     return $fc.mb_substr($str, 1, mb_strlen($str), encoding:'UTF-8');
 }
-
 
 //_______________________________________________________________
 /**

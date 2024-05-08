@@ -82,8 +82,10 @@ function affMenu(string $prefixe = '..') : void {
                     '<ul>',
                         '<li><a href="', $prefixe, '/php/compte.php">Mon profil</a></li>',
                         $_SESSION['redacteur'] ? "<li><a href='$prefixe/php/nouveau.php'>Nouvel article</a></li>" : '',
-                        '<li><a href="', $prefixe, '/php/deconnexion.php">Se déconnecter</a></li>',
-                    '</ul>',
+                        '<li><a href="', $prefixe, '/php/deconnexion.php">Se déconnecter</a></li>';
+        //if()
+
+        echo        '</ul>',
                 '</li>';
     }
     else {
@@ -148,3 +150,39 @@ function sessionExit(string $page = '../index.php'): void {
     exit();
 }
 
+//_______________________________________________________________
+/**
+ * Détecte si l'utilisateur est un rédacteur ou non
+ *
+ * @param void
+ * @return string true si l'utilisateur est un rédacteur, faux sinon
+ */
+function estRedacteur(): bool {
+    if(isset($_SESSION['redacteur'])) {
+        return($_SESSION['redacteur'] == 1);
+    }
+    return false;
+}
+
+//_______________________________________________________________
+/**
+ * Renvoie dans un tableau l'id et le titre des articles sélectionnés par une requête SQL
+ *
+ * @param  mysqli  $bd      référence pointant sur l'objet connecteur à la base de données
+ * @param  string  $sql     la requête SQL à envoyer
+ *
+ * @return array            tableau (clé : id de l'article, valeur associée à la clé : titre de l'article)
+ */
+function bdSelectArticlesL(mysqli $bd, string $sql) : array {
+    $res = [];
+    $result = bdSendRequest($bd, $sql);
+    while ($t = mysqli_fetch_assoc($result)) {
+        $res[$t['arID']] = $t['arTitre'];
+        // echo '<p>', $t['arID'], $t['arTitre'], '</p>';
+    }
+
+    // Libération de la mémoire associée au résultat de la requête
+    mysqli_free_result($result);
+
+    return $res;
+}

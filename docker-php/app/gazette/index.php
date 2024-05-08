@@ -93,8 +93,12 @@ function affContenuL() : void {
  */
 function affUnArticleL(int $id, string $titre) : void {
     $titre = htmlProtegerSorties($titre); // ATTENTION : à ne pas oublier !!!
+    // On chiffre l'id le lien de l'article, comme la fonction de chiffrage prend 
+    // un string on converti l'entier en string
+    $idChiffre = $id . "";
+    $idChiffre = chiffrerPourURL($idChiffre);
     echo
-            '<a href="./php/article.php?id=', $id, '">',
+            '<a href="./php/article.php?id=', $idChiffre, '">',
                 '<img src="upload/', $id, '.jpg" alt="Photo d\'illustration | ', $titre, '"><br>',
                 $titre,
             '</a>';
@@ -115,31 +119,6 @@ function affBlocTroisArticlesL(string $titreBloc, array $articles) : void {
         affUnArticleL($id, $titre);
     }
     echo    '</section>';
-}
-
-//_______________________________________________________________
-/**
- * Renvoie dans un tableau l'id et le titre des articles sélectionnés par une requête SQL
- *
- * @param  mysqli  $bd      référence pointant sur l'objet connecteur à la base de données
- * @param  string  $sql     la requête SQL à envoyer
- *
- * @return array            tableau (clé : id de l'article, valeur associée à la clé : titre de l'article)
- */
-function bdSelectArticlesL(mysqli $bd, string $sql) : array {
-    $res = [];
-    $result = bdSendRequest($bd, $sql);
-    while ($t = mysqli_fetch_assoc($result)) {
-        // On chiffre l'ID de l'article
-        $chiffre = chiffrerPourURL($t['arID']);
-        $res[$t['arID']] = $t['arTitre'];
-        echo '<p>', $t['arID'], '    ' , $t['arTitre'], '</p>';
-    }
-
-    // Libération de la mémoire associée au résultat de la requête
-    mysqli_free_result($result);
-
-    return $res;
 }
 
 //_______________________________________________________________

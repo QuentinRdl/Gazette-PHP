@@ -357,3 +357,48 @@ function dechiffrerIdArticleURL(string $donneesChiffreesEncodees): string|false 
     
     return $output !== false ? $output : false;
 }
+
+
+//_______________________________________________________________
+/**
+ * Conversion d'une date format AAAAMMJJHHMM au format JJ mois AAAA à HHhMM
+ *
+ * @param  int      $date   la date à afficher.
+ *
+ * @return string           la chaîne qui représente la date
+ */
+function dateIntToStringL(int $date) : string {
+    // les champs date (coDate, arDatePubli, arDateModif) sont de type BIGINT dans la base de données
+    // donc pas besoin de les protéger avec htmlentities()
+
+    // si un article a été publié avant l'an 1000, ça marche encore :-)
+    $minutes = substr($date, -2);
+    $heure = (int)substr($date, -4, 2); //conversion en int pour supprimer le 0 de '07' pax exemple
+    $jour = (int)substr($date, -6, 2);
+    $mois = substr($date, -8, 2);
+    $annee = substr($date, 0, -8);
+
+    $months = getArrayMonths();
+
+    return $jour. ' '. mb_strtolower($months[$mois - 1], encoding:'UTF-8'). ' '. $annee . ' à ' . $heure . 'h' . $minutes;
+}
+
+//_______________________________________________________________
+/**
+ * Conversion d'une date format AAAAMMJJHHMM au AAAA MM
+ *
+ * @param  int      $date   la date à afficher.
+ *
+ * @return string           la chaîne qui représente la date sous le nouveau format
+ */
+function dateIntToStringAAAAMM(int $date) : string {
+    $minutes = substr($date, -2);
+    $heure = (int)substr($date, -4, 2); //conversion en int pour supprimer le 0 de '07' pax exemple
+    $jour = (int)substr($date, -6, 2);
+    $mois = substr($date, -8, 2);
+    $annee = substr($date, 0, -8);
+
+    $months = getArrayMonths();
+
+    return mb_strtolower($months[$mois - 1], encoding:'UTF-8'). ' '. $annee;
+}
