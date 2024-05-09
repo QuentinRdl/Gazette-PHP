@@ -45,7 +45,13 @@ function affContenuL() : void {
              ORDER BY arDatePubli DESC';
 
     $tab = bdSelectArticlesActus($bd, $sql);
-    affArticlesDate($tab);
+    //affArticlesDate($tab);
+
+    $currentPage = isset($_GET['page']) ? intval($_GET['page']) : 1; // Récupère le numéro de la page depuis l'URL
+    $perPage = 4; // Nombre d'articles à afficher par page
+
+    // Appel de la fonction pour afficher les articles paginés
+    affArticlesDate($tab, $currentPage, $perPage);
 
     // Fermeture de la connexion au serveur de BdD
     mysqli_close($bd);
@@ -55,91 +61,71 @@ function affContenuL() : void {
 
 //_______________________________________________________________
 /**
- * Affiche une vignette
+ * Affiche un article sous la forme actus.php
  *
  * @param   int         id de l'article
  * @param   string      titre de l'article
+ * @param   string      résumé de l'article
  *
  * @return  void
  */
-function affUnArticleL(int $id, string $titre) : void {
+function affUnArticle(int $id, string $titre, string $resume) : void {
     $titre = htmlProtegerSorties($titre); // ATTENTION : à ne pas oublier !!!
     // On chiffre l'id le lien de l'article, comme la fonction de chiffrage prend 
     // un string on converti l'entier en string
     $idChiffre = $id . "";
     $idChiffre = chiffrerPourURL($idChiffre);
+
     echo
-            '<a href="./article.php?id=', $idChiffre, '">',
-                '<img src="../upload/', $id, '.jpg" alt="Photo d\'illustration | ', $titre, '"><br>',
-                $titre,
-            '</a>';
+            //'<a href="./article.php?id=', $idChiffre, '">',
+            '<article class="resume">',
+                '<img src="../upload/', $id, '.jpg" alt="Photo d\'illustration | ', $titre, '">',
+                '<h3>', $titre, '</h3>',
+                '<p>', $resume, '</p>',
+                '<footer>', '<a href="./article.php?id=', $idChiffre, '">Lire l\'article</a></footer>',
+            '</article>';
 }
-//_______________________________________________________________
 /**
- * Affiche un bloc de 3 vignettes.
+ * Affiche les articles paginés
  *
- * @param   string      titre du bloc de 3 vignettes
- * @param   array       ids et titres des articles (clé : id de l'article, valeur associée à la clé : titre de l'article)
- *
- * @return  void
+ * @param array $articles     Tableau contenant les informations des articles
+ * @param int $currentPage    Numéro de la page actuelle
+ * @param int $perPage        Nombre d'articles à afficher par page
+ * @return void
  */
-function affArticlesDate(array $articles) : void {
-    $count = 0;
-    $titreBloc = "test";
-   
+function affArticlesDate(array $articles, int $currentPage, int $perPage): void {
+    // Calcul de l'index de départ et de fin des articles pour la page actuelle
+    $startIndex = ($currentPage - 1) * $perPage;
+    $endIndex = $startIndex + $perPage - 1;
 
-    /*
-    int $nbArticles = count($articles);
-    for($count = 0; $count < $nbArticles; $count++) {
-        $date = ;
-
-        // Extraction de l'année (4 premiers caractères) et du mois (2 caractères suivants)
-        $year = substr($date, 0, 4);
-        $month = substr($date, 4, 2);
-
-        // Concaténation pour obtenir le format AAAAMM
-        $yearMonth = $year . $month;
-
-        echo "Année et mois : $yearMonth";
-    }
-    */
-
-
-    /*
-    echo    '<section class="centre">',
-                '<h2>', $titreBloc, '</h2>';
-    //$date = $articles
-    foreach($articles as $id => $titre) {
-        
-        affUnArticleL($id, $titre);
-    }
-    echo    '</section>';
-    */
-
-    // On récupère la date du tout premier article
-    $lastDate = $articles[0]['arDatePubli'];
-    $lastDate = dateIntToStringAAAAMM($lastDate);
-
-    echo    '<section class="centre">', '<h2>', $lastDate, '</h2>';
-    //$date = $articles
-
-    // Boucle foreach pour parcourir chaque article
-    foreach ($articles as $article) {
-        // Si la date (Année mois) de l'article actuel est le même que celle du dernier article,
-        // on les affiche dans le même bloc, sinon on recrée une section avec la nouvelle date
+    // Boucle foreach pour parcourir les articles de la page actuelle
+    for ($i = $startIndex; $i <= $endIndex && $i < count($articles); $i++) {
+        $article = $articles[$i];
         $date = dateIntToStringAAAAMM($article['arDatePubli']);
-        
-        if(!strcmp($lastDate, $date) == 0) { 
-            echo    '</section>';
-            echo    '<section class="centre">', '<h2>', $date, '</h2>';
-        }
-        echo "<p>ID : " . $article['arID'] . "</p>";
-        echo "<p>Titre : " . $article['arTitre'] . "</p>";
-        echo "<p>Résumé : " . $article['arResume'] . "</p>";
 
-        $lastDate = $date;
+        // Affichage du titre de la section si c'est le premier article de la page
+        if ($i === $startIndex) {
+            echo '<section>', '<h2>', $date, '</h2>';
+        }
+
+        affUnArticle($article['arID'], $article['arTitre'], $article['arResume']);
+        
+        // Affichage de la date de début de la nouvelle section si la date de l'article suivant est différente
+        if ($i < $endIndex && dateIntToStringAAAAMM($articles[$i + 1]['arDatePubli']) !== $date) {
+            echo '</section>';
+            echo '<section>', '<h2>', dateIntToStringAAAAMM($articles[$i + 1]['arDatePubli']), '</h2>', '<article class="resume">';
+        }
     }
+
+    // Affichage des boutons de navigation entre les pages
+    $totalPages = ceil(count($articles) / $perPage);
+    echo '<div class="pagination">';
+    for ($page = 1; $page <= $totalPages; $page++) {
+        echo '<a href="?page=' . $page . '">' . $page . '</a>';
+    }
+    echo '</div>';
 }
+
 
 /**
  * Renvoie dans un tableau l'id, le titre, le résumé et la date de publication des articles sélectionnés par une requête SQL
