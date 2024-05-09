@@ -186,3 +186,20 @@ function bdSelectArticlesL(mysqli $bd, string $sql) : array {
 
     return $res;
 }
+
+/**
+ * Affiche une erreur
+ * @param string $mess le message à afficher
+ * @param array $err la / les erreurs a afficher
+ * 
+ * @return void
+ */
+function afficherErreur(string $mess, array $err) {
+    echo    '<div class="erreur">'.$mess. 
+    '<ul>';
+            foreach ($err as $e) {
+                echo        '<li>', $e, '</li>';
+            }
+            echo        '</ul>',
+                    '</div>';
+}

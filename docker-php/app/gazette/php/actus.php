@@ -75,12 +75,16 @@ function affUnArticle(int $id, string $titre, string $resume) : void {
     // un string on converti l'entier en string
     $idChiffre = $id . "";
     $idChiffre = chiffrerPourURL($idChiffre);
-
+    $pathImage = "../upload/{$id}.jpg";
     echo
-            //'<a href="./article.php?id=', $idChiffre, '">',
-            '<article class="resume">',
-                '<img src="../upload/', $id, '.jpg" alt="Photo d\'illustration | ', $titre, '">',
-                '<h3>', $titre, '</h3>',
+            '<article class="resume">';
+            if(!file_exists($pathImage)) { // Si l'image n'existe pas on affiche une image par défaut
+                echo '<img src="../images/none.jpg" alt="Photo d\'illustration | ', $titre, '">';
+
+            } else {
+                echo '<img src="'. $pathImage. '" alt="Photo d\'illustration | ', $titre, '">';
+            }
+                echo '<h3>', $titre, '</h3>',
                 '<p>', $resume, '</p>',
                 '<footer>', '<a href="./article.php?id=', $idChiffre, '">Lire l\'article</a></footer>',
             '</article>';
@@ -97,10 +101,15 @@ function affArticlesDate(array $articles, int $currentPage, int $perPage): void 
     // Calcul de l'index de départ et de fin des articles pour la page actuelle
     $startIndex = ($currentPage - 1) * $perPage;
     $endIndex = $startIndex + $perPage - 1;
+    $nbArticles = count($articles);
+    $totalPages = ceil($nbArticles / $perPage); // Calcul du nombre de pages
 
     // Boucle foreach pour parcourir les articles de la page actuelle
-    for ($i = $startIndex; $i <= $endIndex && $i < count($articles); $i++) {
+    for ($i = $startIndex; $i <= $endIndex && $i < $nbArticles; $i++) {
         $article = $articles[$i];
+        if(!isset($article['arDatePubli']) || is_null($article['arDatePubli'])) {
+            return;
+        }
         $date = dateIntToStringAAAAMM($article['arDatePubli']);
 
         // Affichage du titre de la section si c'est le premier article de la page
@@ -110,6 +119,12 @@ function affArticlesDate(array $articles, int $currentPage, int $perPage): void 
 
         affUnArticle($article['arID'], $article['arTitre'], $article['arResume']);
         
+        // On regarde si on est à la fin de la page
+        if($i + 1 >= $nbArticles) {
+            afficherBoutonsNavigation($currentPage, $perPage, $totalPages);
+            return;
+        } 
+
         // Affichage de la date de début de la nouvelle section si la date de l'article suivant est différente
         if ($i < $endIndex && dateIntToStringAAAAMM($articles[$i + 1]['arDatePubli']) !== $date) {
             echo '</section>';
@@ -117,8 +132,19 @@ function affArticlesDate(array $articles, int $currentPage, int $perPage): void 
         }
     }
 
+    afficherBoutonsNavigation($currentPage, $perPage, $totalPages);
+}
+
+/**
+ * Affichage des boutons de navigations entre les pages
+ * @param  int $page       page courante
+ * @param int $perPage     nombre d'articles à afficher par page
+ * @param  int $totalPages nombre total de pages
+ * @return void
+ */
+function afficherBoutonsNavigation($page, $perPage, $totalPages) {
     // Affichage des boutons de navigation entre les pages
-    $totalPages = ceil(count($articles) / $perPage);
+    
     echo '<div class="pagination">';
     for ($page = 1; $page <= $totalPages; $page++) {
         echo '<a href="?page=' . $page . '">' . $page . '</a>';
