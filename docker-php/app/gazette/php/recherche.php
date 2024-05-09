@@ -15,9 +15,13 @@ affEntete('Recherche');
 // génération du contenu de la page
 if (isset($_POST["recherche"])) {
     // Appel de la fonction de traitement
+    $_POST["recherche"] = trim($_POST["recherche"]); // Enleve les espaces blancs
+    $_POST["recherche"] = strip_tags($_POST["recherche"]); // Enleve les balises HTML et PHP
     $err = recuperationMotsNonValide($_POST["recherche"]);
+    afficherFormulaireRecher($err, $_POST["recherche"]);
 } else {
     $err = NULL;
+    afficherFormulaireRecher($err);
 }
  
 /*
@@ -36,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 */
-afficherFormulaireRecher($err);
+
 
 /** Récupération des mots non valides
  * @param string $recherche
@@ -116,14 +120,83 @@ function verifierRecherche(string $recherche): array {
     */
 }
 
-function afficherFormulaireRecher(?array $err): void {
+function afficherFormulaireRecher(?array $err, ?string $mots=null): void {
     echo
         '<main>',
         '<section class="centre">',
         '<h2>', 'Rechercher des articles', '</h2>',
         '<p>Les critères de recherche doivent faire au moins 3 caractères pour être pris en compte.</p>';
-        if (is_array($err) && count($err) == 1) afficherErreur("Le critère suivant n'a pas été pris en compte :", $err);
-        elseif(is_array($err) && count($err) > 1) afficherErreur("Les critères suivant n'ont pas été pris en compte :", $err);
+        if (is_array($err) && count($err) == 1) afficherErreur("Le critère suivant n'a pas été pris en compte :", $err, false);
+        elseif(is_array($err) && count($err) > 1) afficherErreur("Les critères suivant n'ont pas été pris en compte :", $err, false);
+        if ($mots != null) {
+            $first = true;
+            $mots = recuperationMotsValide($mots);
+            echo  '<div class="affichageResultats">', '<p>', 'Critère de recherche utilisés : "';
+            foreach($mots as $mot) {
+                if($first) {
+                    $first = false;
+                } else {echo " ";}
+                echo $mot;
+            }
+            echo '".','</p>', '</div>';
+        }
+        // On traite le cas ou on recherche qu'un seul mot
+        $sql = "VIDE";
+        if($mots != NULL && count($mots) == 1) {
+            $sql = "SELECT arID, arTitre, arResume, arDatePubli FROM article WHERE arTitre LIKE '%$mots[0]%' OR ArResume LIKE '%$mots[0]%' ";
+            //LIKE '%$mots[0]%' OR ArResume LIKE '%$mots[0]%'"
+        } else if ($mots != NULL && count($mots) > 1) {
+            // On traite le cas ou on recherche plusieurs mots
+            $sql = "SELECT arID, arTitre, arResume, arDatePubli FROM article";
+            $first = true;
+            foreach($mots as $mot) {
+                if($first) {
+                    $first = false;
+                    //$sql.= ' WHERE (';
+                    $sql.=  ' WHERE (arTitre ';
+                } else {
+                    $sql.= ' AND (arTitre ';
+                }
+                $sql.= "LIKE '%$mot%' OR ArResume LIKE '%$mot%')";
+            }
+            
+            echo $sql;
+            // exit();
+        }
+
+        
+
+        if($mots != null) {
+            $sql.= " ORDER BY arDatePubli DESC;";
+            $bd = bdConnect(); // Ouverture de la connexion à la BDD
+
+
+            $tab = bdSelectArticlesActus($bd, $sql);
+            $article = $tab[0];
+            echo "RESRSERSERESRESRSE\n\n\n\n";
+            echo $article['arDatePubli'];
+
+            /*
+            $result = bdSendRequest($bd, $sql); // On envoie la requête
+            mysqli_close($bd); // On ferme la connexion
+            */
+            // pas d'articles --> fin de la fonction
+            if (mysqli_num_rows($result) == 0) {
+                echo 'Aucun article correspondent n\'a été trouvé';
+                // Libération de la mémoire associée au résultat de la requête
+                mysqli_free_result($result);
+                return; // ==> fin de la fonction
+            }
+
+            while ($t = mysqli_fetch_assoc($result)) {
+                $res[$t['arID']] = $t['arTitre'];
+                // echo '<p>', $t['arID'], $t['arTitre'], '</p>';
+            }
+            echo 'article trouve';
+            mysqli_free_result($result); // On libère le résultat
+        }
+
+        
         /*
         if (is_array($err) && count($err) == 1) {
             echo    '<div class="erreur">Le critère suivant n\'a pas été pris en compte :';
@@ -151,3 +224,30 @@ affPiedDePage();
 
 // envoi du buffer
 ob_end_flush();
+
+/**
+ * Renvoie dans un tableau l'id, le titre, le résumé et la date de publication des articles sélectionnés par une requête SQL
+ *
+ * @param  mysqli  $bd      référence pointant sur l'objet connecteur à la base de données
+ * @param  string  $sql     la requête SQL à envoyer
+ *
+ * @return array            tableau contenant les informations des articles sélectionnés
+ */
+function bdSelectArticlesActus(mysqli $bd, string $sql): array {
+    $res = [];
+    $result = bdSendRequest($bd, $sql);
+    while ($row = mysqli_fetch_assoc($result)) {
+        $articleInfo = [
+            'arID' => $row['arID'],
+            'arTitre' => $row['arTitre'],
+            'arResume' => $row['arResume'],
+            'arDatePubli' => $row['arDatePubli']
+        ];
+        $res[] = $articleInfo;
+    }
+
+    // Libération de la mémoire associée au résultat de la requête
+    mysqli_free_result($result);
+
+    return $res;
+}

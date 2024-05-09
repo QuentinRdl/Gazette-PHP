@@ -191,15 +191,31 @@ function bdSelectArticlesL(mysqli $bd, string $sql) : array {
  * Affiche une erreur
  * @param string $mess le message à afficher
  * @param array $err la / les erreurs a afficher
+ * @param bool $list si true, affiche chacune erreur sous forme de liste
+ * sinon cela ne fait qu'un seul <li>
  * 
  * @return void
  */
-function afficherErreur(string $mess, array $err) {
-    echo    '<div class="erreur">'.$mess. 
+function afficherErreur(string $mess, array $err, bool $list) {
+    echo    '<div class="erreur">'.$mess.
     '<ul>';
-            foreach ($err as $e) {
-                echo        '<li>', $e, '</li>';
+    $first = true;
+
+    foreach ($err as $e) {
+        if($list == true) {
+        echo        '<li>', $e, '</li>';
+        } else {
+            if($first == true) {
+                echo '<li>', $e,' ';
+            } else {
+                echo $e. ' ';
             }
-            echo        '</ul>',
-                    '</div>';
+            $first = false;
+        } 
+    }
+    
+    if($first == false) {
+        echo '</li>';
+    }
+    echo '</ul>', '</div>';
 }
