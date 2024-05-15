@@ -23,6 +23,14 @@ if (isset($_POST["recherche"])) {
     $err = NULL;
     afficherFormulaireRecher($err);
 }
+
+echo '</section>';
+echo '</main>';
+affPiedDePage();
+
+// envoi du buffer
+ob_end_flush();
+
  
 /*
 // Vérifier si le formulaire a été soumis
@@ -143,6 +151,7 @@ function afficherFormulaireRecher(?array $err, ?string $mots=null): void {
         // On traite le cas ou on recherche qu'un seul mot
         $sql = "VIDE";
         if($mots != NULL && count($mots) == 1) {
+            if($mots[0] == "") {return;} // Ne rien retourner si la chaine de recherche est vide
             $sql = "SELECT arID, arTitre, arResume, arDatePubli FROM article WHERE arTitre LIKE '%$mots[0]%' OR ArResume LIKE '%$mots[0]%' ";
             //LIKE '%$mots[0]%' OR ArResume LIKE '%$mots[0]%'"
         } else if ($mots != NULL && count($mots) > 1) {
@@ -160,57 +169,38 @@ function afficherFormulaireRecher(?array $err, ?string $mots=null): void {
                 $sql.= "LIKE '%$mot%' OR ArResume LIKE '%$mot%')";
             }
             
-            echo $sql;
+            // echo $sql;
             // exit();
         }
 
+        afficherFormulaireRecherche();
         
-
         if($mots != null) {
             $sql.= " ORDER BY arDatePubli DESC;";
             $bd = bdConnect(); // Ouverture de la connexion à la BDD
 
 
             $tab = bdSelectArticlesActus($bd, $sql);
-            $article = $tab[0];
-            echo "RESRSERSERESRESRSE\n\n\n\n";
-            echo $article['arDatePubli'];
+            // $article = $tab[0];
+            // echo "RESRSERSERESRESRSE\n\n\n\n";
 
-            /*
-            $result = bdSendRequest($bd, $sql); // On envoie la requête
-            mysqli_close($bd); // On ferme la connexion
-            */
             // pas d'articles --> fin de la fonction
-            if (mysqli_num_rows($result) == 0) {
-                echo 'Aucun article correspondent n\'a été trouvé';
-                // Libération de la mémoire associée au résultat de la requête
-                mysqli_free_result($result);
-                return; // ==> fin de la fonction
+            if ($tab == null || count($tab) == 0) {
+                echo '</section>', 
+                '<section>', '<h2>', 'Résultats', '</h2>', '<article class="resultatRechercheNulle">';
+                echo '<p>Aucun article ne correspondant à vos criètres de recherche.</p>',
+                '</section>';
+                // return; // ==> fin de la fonction
+            } else {
+                // echo 'article trouve';
+                afficherArticlesTrouve($tab); 
             }
 
-            while ($t = mysqli_fetch_assoc($result)) {
-                $res[$t['arID']] = $t['arTitre'];
-                // echo '<p>', $t['arID'], $t['arTitre'], '</p>';
-            }
-            echo 'article trouve';
-            mysqli_free_result($result); // On libère le résultat
+            
         }
+        //afficherFormulaireRecherche();
 
-        
         /*
-        if (is_array($err) && count($err) == 1) {
-            echo    '<div class="erreur">Le critère suivant n\'a pas été pris en compte :';
-        */
-        /*
-        if (is_array($err) && count($err) > 0) {
-            echo    '<div class="erreur">Le critère suivant n\'a pas été pris en compte :',
-                        '<ul>';
-            foreach ($err as $e) {
-                echo        '<li>', $e, '</li>';
-            }
-            echo        '</ul>',
-                    '</div>';
-        }*/
         echo '<div>',
         '<form method="POST" action="">',
         '<input type="text" name="recherche">',
@@ -219,11 +209,23 @@ function afficherFormulaireRecher(?array $err, ?string $mots=null): void {
         '</div>',
         '</section>',
         '</main>';
+        */
 }
-affPiedDePage();
 
-// envoi du buffer
-ob_end_flush();
+/**
+ * Affiche le formulaire de recherche
+ * @param void
+ * @return void
+ */
+function afficherFormulaireRecherche() {
+    echo 
+    '<div>',
+        '<form method="POST" action="">',
+        '<input type="text" name="recherche">',
+        '<button type="submit">Rechercher</button>',
+        '</form>',
+    '</div>';
+}
 
 /**
  * Renvoie dans un tableau l'id, le titre, le résumé et la date de publication des articles sélectionnés par une requête SQL
@@ -250,4 +252,83 @@ function bdSelectArticlesActus(mysqli $bd, string $sql): array {
     mysqli_free_result($result);
 
     return $res;
+}
+/**
+ * Affiche les articles trouvés par la requête SQL
+ * @param array $articles Les articles a afficher
+ * @return void
+ */
+function afficherArticlesTrouve(array $articles) : void {
+    $nbArticles = count($articles);
+    echo '</section>';
+    // Boucle foreach pour parcourir les articles de la page actuelle
+    for ($i = 0; $i < $nbArticles; $i++) {
+        $article = $articles[$i];
+        if(!isset($article['arDatePubli']) || is_null($article['arDatePubli'])) {
+            return;
+        }
+        $date = dateIntToStringAAAAMM($article['arDatePubli']);
+
+        /*
+        // Affichage du titre de la section si c'est le premier article de la page
+        if ($i === $startIndex) {
+            echo '<section>', '<h2>', $date, '</h2>';
+        }
+        */
+        // Affichage du titre de la section si c'est le premier article
+        if($i == 0) {
+            echo '<section>', '<h2>', $date, '</h2>';
+        }
+        
+
+        affUnArticle($article['arID'], $article['arTitre'], $article['arResume']);
+        
+        /*
+        // On regarde si on est à la fin de la page
+        if($i + 1 >= $nbArticles) {
+            afficherBoutonsNavigation($currentPage, $perPage, $totalPages);
+            return;
+        } 
+        */
+
+        // Affichage de la date de début de la nouvelle section si la date de l'article suivant est différente
+        if($i + 1 >= $nbArticles) {
+            echo '</section>';
+        } elseif (dateIntToStringAAAAMM($articles[$i + 1]['arDatePubli']) !== $date) {
+            echo '</section>';
+            echo '<section>', '<h2>', dateIntToStringAAAAMM($articles[$i + 1]['arDatePubli']), '</h2>', '<article class="resume">';
+        }
+    }
+    
+}
+
+//_______________________________________________________________
+/**
+ * Affiche un article sous la forme actus.php
+ *
+ * @param   int         id de l'article
+ * @param   string      titre de l'article
+ * @param   string      résumé de l'article
+ *
+ * @return  void
+ */
+function affUnArticle(int $id, string $titre, string $resume) : void {
+    $titre = htmlProtegerSorties($titre); // ATTENTION : à ne pas oublier !!!
+    // On chiffre l'id le lien de l'article, comme la fonction de chiffrage prend 
+    // un string on converti l'entier en string
+    $idChiffre = $id . "";
+    $idChiffre = chiffrerPourURL($idChiffre);
+    $pathImage = "../upload/{$id}.jpg";
+    echo
+            '<article class="resume">';
+            if(!file_exists($pathImage)) { // Si l'image n'existe pas on affiche une image par défaut
+                echo '<img src="../images/none.jpg" alt="Photo d\'illustration | ', $titre, '">';
+
+            } else {
+                echo '<img src="'. $pathImage. '" alt="Photo d\'illustration | ', $titre, '">';
+            }
+                echo '<h3>', $titre, '</h3>',
+                '<p>', $resume, '</p>',
+                '<footer>', '<a href="./article.php?id=', $idChiffre, '">Lire l\'article</a></footer>',
+            '</article>';
 }
