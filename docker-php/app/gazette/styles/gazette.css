@@ -613,3 +613,52 @@ section.pages_actus p a:hover {
 }
 
 /* Fin pour actus.php */
+
+
+section > div.comment_form {
+    width: 90%;
+    margin: 20px auto; /* Centrer le formulaire */
+    background: #f9f9f9; /* Couleur de fond */
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Ombre autour du formulaire */
+    border-radius: 8px; /* Bordures arrondies */
+}
+
+/* Styles pour le titre du formulaire */
+section > div.comment_form h5 {
+    margin-bottom: 15px; /* Espacement avant le textarea */
+    color: #333; /* Couleur du texte */
+    font-size: 18px; /* Taille de la police */
+}
+
+/* Styles pour l'aire de texte */
+section > div.comment_form textarea {
+    width: calc(100% - 20px);
+    height: 100px;
+    padding: 10px;
+    border: 1px solid #ccc; /* Bordure grise */
+    border-radius: 4px; /* Bordures lÃ©gÃ¨rement arrondies */
+    resize: none; /* EmpÃªche le redimensionnement */
+}
+
+/* Styles pour le bouton */
+section > div.comment_form input[type="submit"] {
+    width: calc(100% - 20px);
+    height: 28px;
+    background-color: #f0f0f0;
+    font-size: 17px;
+    font-weight: bold;
+    border: solid 2px #444;
+    border-radius: 5px;
+    padding: 2px 5px;
+    min-width: 30px;
+    cursor: pointer;
+    color: black;
+    text-decoration: none;
+}
+
+section > div.comment_form input[type="submit"]:hover {
+    background: red;
+    color: white;
+    text-decoration: none;
+}

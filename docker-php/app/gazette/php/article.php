@@ -14,6 +14,39 @@ affEntete('Article');
 
 // génération du contenu de la page
 affContenuL();
+if(isset($_POST['comment'])) {
+    if(!isset($_SESSION['pseudo'])) {
+        echo 'Session pseudo not set';
+        return;
+    }
+    // On enlève les balises HTML
+    $comment = strip_tags($_POST['comment']);
+    // On protège les sorties
+    $comment = htmlentities($comment);
+    // On récupère la date sous la forme DD MM YYYY HH MM
+    $year = date('Y');
+    $month = date('m');
+    $day = date('d');
+    $heure = date('H');
+    $minute = date('i');
+    $date = $year . $month . $day . $heure . $minute;
+
+    // On ouvre la connexion à la BDD
+    $bd = bdConnect();
+    // On insère le commentaire dans la BDD
+    $idArticle = dechiffrerURL($_GET['id']);
+    // Table commentaire : coID, coAuteur, coTexte, coDate, coArticle
+    // Avec coID auto incrémenté, coAuteur l'id de l'auteur, coTexte le texte du commentaire, coDate la date du commentaire, coArticle l'id de l'article
+
+    $sql = "INSERT INTO commentaire (coID, coAuteur, coTexte, coDate, coArticle) VALUES (NULL, '".$_SESSION['pseudo']."', '".$comment."', '".$date."', '".$idArticle."')";
+    $result = bdSendRequest($bd, $sql);
+    // On ferme la connexion à la BDD
+    mysqli_close($bd);
+    echo 'Commentaire publié';
+    echo 'comment = '.$comment;
+    echo 'date = '.$date;
+    echo 'Commentaire : ', $_POST['comment'];
+}
 
 affPiedDePage();
 
@@ -148,12 +181,41 @@ function affContenuL() : void {
     // Libération de la mémoire associée au résultat de la requête
     mysqli_free_result($result);
 
-    echo
+
+    // On regarde si l'user est authentifié, puis si c'est un auteur
+    $authentifie = $redacteur = 0;
+    if(isset($_SESSION['connecte']) && $_SESSION['connecte'] == 1) {
+        $authentifie = 1;
+        if(isset($_SESSION['redacteur']) && $_SESSION['redacteur'] == 1) {
+            $redacteur = 1;
+        }
+    }
+    if(!$authentifie) {
+        echo
         '<p>',
-            '<a href="./connexion.php">Connectez-vous</a> ou <a href="./inscription.php">inscrivez-vous</a> pour pouvoir commenter cet article !',
+        '<a href="./connexion.php">Connectez-vous</a> ou <a href="./inscription.php">inscrivez-vous</a> pour pouvoir commenter cet article !',
         '</p>',
-        '</section>',
-    '</main>';
+        '</section>';
+        }
+    else {
+        echo 'Vs etes authentifie\n';
+        if($redacteur) {
+            echo 'Vs etes redacteru';
+        }
+        // Display a form for adding a comment
+        echo
+        '<section>',
+        '<div class="commentaire_form">',
+        '<h5>Ajouter un commentaire</h5>',
+        '<form method="post" action="">', // L'action est vide pour soumettre le formulaire à la même page
+        '<textarea id="comment" name="comment"></textarea>',
+        '<input id="submit" type="submit" value="Publier ce commentaire">',
+        '</form>',
+        '</div>',
+        '</section>';
+
+    }
+    echo '</main>';
 }
 
 //___________________________________________________________________
