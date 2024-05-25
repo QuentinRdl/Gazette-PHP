@@ -343,7 +343,7 @@ function chiffrerPourURL(string $input): string {
  * @param string $donneesChiffreesEncodees L'identifiant de l'article chiffré encodé en base64 pour l'URL
  * @return string|false L'identifiant de l'article déchiffré ou false en cas d'erreur
  */
-function dechiffrerIdArticleURL(string $donneesChiffreesEncodees): string|false {
+function dechiffrerURL(string $donneesChiffreesEncodees): string|false {
     // Décodage URL
     // $donneesChiffrees = base64_decode(urldecode($donneesChiffreesEncodees));
     $donneesChiffrees = base64_decode($donneesChiffreesEncodees);
@@ -401,4 +401,62 @@ function dateIntToStringAAAAMM(int $date) : string {
     $months = getArrayMonths();
 
     return mb_strtolower($months[$mois - 1], encoding:'UTF-8'). ' '. $annee;
+}
+
+/**
+ * Converti un string de BBCode en HTML.
+ * /!\ Cette fonction doit être utilisée après avoir utilisé la fonction
+ * htmlentites() pour protéger les sorties.
+ * @param string $BBCode le texte en BBCode
+ * @return string le texte converti en HTML
+ */
+function BBCodeToHTML(string $BBCode) : string {
+    // On enleve les balises HTML
+    $BBCode = strip_tags($BBCode);
+    /* Elements BBCode avec tags ouvrants ET fermants */
+    // Remplacement balise [p] [/p] en <p> </p>
+    $BBCode = preg_replace('#\[p\](.+?)\[/p\]#is', '<p>$1</p>', $BBCode);
+    // Remplacement de [gras] [/gras] en <strong> </strong>
+    $BBCode = preg_replace('#\[gras\](.+?)\[/gras\]#is', '<strong>$1</strong>', $BBCode);
+    // Remplacement de [it] [/it] en <em> </em>
+    $BBCode = preg_replace('#\[it\](.+?)\[/it\]#is', '<em>$1</em>', $BBCode);
+    // Remplacement de [citation] [/citation] en <blockquote> </blockquote>
+    $BBCode = preg_replace('#\[citation\](.+?)\[/citation\]#is', '<blockquote>$1</blockquote>', $BBCode);
+    // Remplacement de [liste] contenu [/liste] en <ul>contenu</ul>
+    $BBCode = preg_replace('#\[liste\](.+?)\[/liste\]#is', '<ul>$1</ul>', $BBCode);
+    // Remplacement de [item] contenu [/item] en <li>contenu</li>
+    $BBCode = preg_replace('#\[item\](.+?)\[/item\]#is', '<li>$1</li>', $BBCode);
+    // Remplacement de [a:url] contenu [/a] en <a href="url">contenu</a>
+    $BBCode = preg_replace('#\[a:(.+?)\](.+?)\[/a\]#is', '<a href="$1">$2</a>', $BBCode);
+
+
+    /* Elements BBCode avec tags ouvrants SANS tags fermants*/
+    // Replacement [br] en <br>
+    $BBCode = preg_replace('#\[br\]#is', '<br>', $BBCode);
+
+    // Remplacement de [widget-spotify:w:h:url legende] en <figure> <iframe width='w' height='h' src='url' allow='encrypted-media; clipboard-write'></iframe>    <figcaption>legende</figcaption> </figure>
+    $BBCode = preg_replace('#\[widget-spotify:(\d+):(\d+):(.+?) (.+?)\]#is', '<figure> <iframe width=\'$1\' height=\'$2\' src=\'$3\' allow=\'encrypted-media; clipboard-write\'></iframe>    <figcaption>$4</figcaption> </figure>', $BBCode);
+    // Remplacement de [widget-deezer:w:url] en <iframe width='w' height='h' src='url' allow='encrypted-media; clipboard-write'></iframe>
+    $BBCode = preg_replace('#\[widget-deezer:(\d+):(\d+):(.+?)\]#is', '<iframe width=\'$1\' height=\'$2\' src=\'$3\' allow=\'encrypted-media; clipboard-write\'></iframe>', $BBCode);
+
+    /* Code Unicode NNN écrit en décimal et en hexadécimal */
+    $BBCode = UnicodeBBCodeToHTML($BBCode);
+
+    return $BBCode;
+}
+
+/**
+ * Converti les codes Unicode en HTML.
+ * @param string $UniBBCode le texte contenant des UnicodeBBCode (ou pas)
+ * @return string le texte, avec l'Unicode converti en HTML
+ */
+function UnicodeBBCodeToHTML($UniBBCode) : string {
+    $unicode = [
+        '/\[#(\d+)\]/' => '&#$1;',
+        '/\[#x([0-9A-Fa-f]+)\]/' => '&#x$1;',
+    ];
+    foreach ($unicode as $pattern => $replacement) {
+        $UniBBCode = preg_replace($pattern, $replacement, $UniBBCode);
+    }
+    return $UniBBCode;
 }

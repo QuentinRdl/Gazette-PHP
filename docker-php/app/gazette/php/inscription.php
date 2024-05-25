@@ -306,19 +306,12 @@ function traitementInscriptionL(): array {
 
     bdSendRequest($bd, $sql);
 
-
     // fermeture de la connexion à la base de données
     mysqli_close($bd);
 
-    // mémorisation du pseudo dans une variable de session (car affiché dans la barre de navigation sur toutes les pages)
-    // enregistrement dans la variable de session du pseudo avant passage par la fonction mysqli_real_escape_string()
-    // car, d'une façon générale, celle-ci risque de rajouter des antislashs
-    // Rappel : ici, elle ne rajoutera jamais d'antislash car le pseudo ne peut contenir que des caractères alphanumériques
     $_SESSION['pseudo'] = $pseudo;
+    $_SESSION['redacteur'] = false;
 
-    $_SESSION['redacteur'] = false; // utile pour l'affichage de la barre de navigation
-
-    // redirection vers la page protegee.php : à modifier dans le projet !
-    header('Location: protegee.php');
+    header('Location: ../index.php');
     exit(); //===> Fin du script
 }

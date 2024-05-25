@@ -579,3 +579,37 @@ input[type=submit]:hover, input[type=reset]:hover {
     margin: 10px auto;
     line-height: 1.5;
 }
+
+/* Pour actus.php */
+section.pages_actus {
+    border-radius: 10px 10px 10px 10px;
+}
+
+section.pages_actus p a, section > ul > li.can_delete a  {
+    margin: 0px 10px;
+    width: auto;
+    height: 28px;
+    background-color: #f0f0f0;
+    font-size: 17px;
+    font-weight: bold;
+    border: solid 2px #444;
+    border-radius: 5px;
+    padding: 2px 5px;
+    min-width: 30px;
+    cursor: pointer;
+    color: black;
+    text-decoration: none;
+}
+
+section.pages_actus p a.courante {
+    font-size: 14px;
+    color: black;
+}
+
+section.pages_actus p a:hover {
+    background: red;
+    color: white;
+    text-decoration: none;
+}
+
+/* Fin pour actus.php */

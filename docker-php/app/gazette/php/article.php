@@ -31,7 +31,7 @@ ob_end_flush();
  *
  * @return  void
  */
-function affContenuL() : void {  
+function affContenuL() : void {
     // echo "Identifiant de l'article :", $idArticle;
 
     if (! parametresControle('get', ['id'])){
@@ -40,7 +40,7 @@ function affContenuL() : void {
     }
 
     // Déchiffrer l'identifiant de l'article à partir de l'URL
-    $idArticle = dechiffrerIdArticleURL($_GET['id']);
+    $idArticle = dechiffrerURL($_GET['id']);
 
     if ($idArticle == FALSE){ // FALSE car la fonction de déchiffrage retourne false en cas d'erreur
         affErreurL('La fonction de déchiffrage n\'a pas réussi a déchiffre cet id');
@@ -88,18 +88,28 @@ function affContenuL() : void {
     // À faire avant la protection avec htmlentities() à cause des éventuels accents
     $auteur = upperCaseFirstLetterLowerCaseRemainderL(mb_substr($tab['utPrenom'], 0, 1, encoding:'UTF-8')) . '. ' . upperCaseFirstLetterLowerCaseRemainderL($tab['utNom']);
 
-    // ATTENTION : protection contre les attaques XSS
+    // Protection contre les attaques XSS
     $auteur = htmlProtegerSorties($auteur);
-
-    // ATTENTION : protection contre les attaques XSS
     $tab = htmlProtegerSorties($tab);
+
+    // On converti le texte BBCode en HTML
+    $newTexte = BBCodeToHTML($tab['arTexte']);
+
+    // On regarde s'il y a une image qui correspond à l'article en construisant le path
+    $pathImage = "../upload/";
+    $pathImage .= $tab['arID'];
+    $pathImage .= ".jpg";
 
     echo
         '<main id="article">',
             '<article>',
-                '<h3>', $tab['arTitre'], '</h3>',
-                '<img src="../upload/', $tab['arID'], '.jpg" alt="Photo d\'illustration | ', $tab['arTitre'], '">',
-                $tab['arTexte'],
+                '<h3>', $tab['arTitre'], '</h3>';
+    // On affiche seulement l'image de l'article si elle existe
+    if(file_exists($pathImage)) {
+        echo '<img src="../upload/', $tab['arID'], '.jpg" alt="Photo d\'illustration | ', $tab['arTitre'], '">';
+    }
+                //$tab['arTexte'],
+    echo $newTexte, '<br>',
                 '<footer>',
                     'Par <a href="redaction.php#', $tab['utPseudo'], '">', $auteur, '</a>. ',
                     'Publié le ', dateIntToStringL($tab['arDatePubli']),
@@ -122,12 +132,15 @@ function affContenuL() : void {
                     '<p>Commentaire de <strong>', htmlProtegerSorties($tab['coAuteur']),
                         '</strong>, le ', dateIntToStringL($tab['coDate']),
                     '</p>',
-                    '<blockquote>', htmlProtegerSorties($tab['coTexte']), '</blockquote>',
+                    '<blockquote>', UnicodeBBCodeToHTML(htmlProtegerSorties($tab['coTexte'])), '</blockquote>',
+                // On utilise la fonction UnicodeBBCodetoHTML car elle converti seulement les codes unicode en HTML
+                // et pas les balises BBCode, de cette manière les utilisateurs ne peuvent pas insérer de balises HTML
+                // en utilisant du BBCode dans leur commentaires
                 '</li>';
         }
         echo '</ul>';
     }
-    // sinon on indique qu'il n'y a pas de commentaires
+    // Sinon on indique qu'il n'y a pas de commentaires
     else {
         echo '<p>Il n\'y a pas de commentaire pour cet article. </p>';
     }
@@ -175,54 +188,4 @@ function affErreurL(string $message) : void {
                 '<blockquote>', $message, '</blockquote>',
             '</section>',
         '</main>';
-}
-
-//_______________________________________________________________
-/**
- * Convertir un string de BBCode en HTML.
- *
- * @param  string  $msg    le message d'erreur à afficher.
- *
- * @return void
- */
-function convertBBCodeToHTML(string $BBCode) : string {
-    // On échape les caractères HTML pour éviter les attaques XSS
-
-    // On remplace les balises [b] par des balises <strong>
-    $BBCode = preg_replace('#\[b\](.+)\[/b\]#Us', '<strong>$1</strong>', $BBCode);
-    // On remplace les balises [i] par des balises <em>
-    $BBCode = preg_replace('#\[i\](.+)\[/i\]#Us', '<em>$1</em>', $BBCode);
-    // On remplace les balises [u] par des balises <u>
-    $BBCode = preg_replace('#\[u\](.+)\[/u\]#Us', '<u>$1</u>', $BBCode);
-    // On remplace les balises [s] par des balises <del>
-    $BBCode = preg_replace('#\[s\](.+)\[/s\]#Us', '<del>$1</del>', $BBCode);
-    // On remplace les balises [url] par des balises <a>
-    $BBCode = preg_replace('#\[url\](.+)\[/url\]#Us', '<a href="$1">$1</a>', $BBCode);
-    // On remplace les balises [url=...] par des balises <a>
-    $BBCode = preg_replace('#\[url=(.+)\](.+)\[/url\]#Us', '<a href="$1">$2</a>', $BBCode);
-    // On remplace les balises [img] par des balises <img>
-    $BBCode = preg_replace('#\[img\](.+)\[/img\]#Us', '<img src="$1" alt="Image">', $BBCode);
-    // On remplace les balises [quote] par des balises <blockquote>
-    $BBCode = preg_replace('#\[quote\](.+)\[/quote\]#Us', '<blockquote>$1</blockquote>', $BBCode);
-    // On remplace les balises [code] par des balises <pre>
-    $BBCode = preg_replace('#\[code\](.+)\[/code\]#Us', '<pre>$1</pre>', $BBCode);
-    // On remplace les balises [size=...] par des balises <span>
-    $BBCode = preg_replace('#\[size=(\d+)\](.+)\[/size\]#Us', '<span style="font-size: $1px">$2</span>', $BBCode);
-    // On remplace les balises [color=...] par des balises <span>
-    $BBCode = preg_replace('#\[color=(.+)\](.+)\[/color\]#Us', '<span style="color: $1">$2</span>', $BBCode);
-    // On remplace les balises [list] par des balises <ul>
-    $BBCode = preg_replace('#\[list\](.+)\[/list\]#Us', '<ul>$1</ul>', $BBCode);
-    // On remplace les balises [*] par des balises <li>
-    $BBCode = preg_replace('#\[\*\](.+)\[/\*\]#Us', '<li>$1</li>', $BBCode);
-    // On remplace les balises [center] par des balises <div>
-    $BBCode = preg_replace('#\[center\](.+)\[/center\]#Us', '<div style="text-align: center">$1</div>', $BBCode);
-    // On remplace les balises [right] par des balises <div>
-    $BBCode = preg_replace('#\[right\](.+)\[/right\]#Us', '<div style="text-align: right">$1</div>', $BBCode);
-    // On remplace les balises [justify] par des balises <div>
-    $BBCode = preg_replace('#\[justify\](.+)\[/justify\]#Us', '<div style="text-align: justify">$1</div>', $BBCode);
-    // On remplace les balises [left] par des balises <div>
-    $BBCode = preg_replace('#\[left\](.+)\[/left\]#Us', '<div style="text-align: left">$1</div>', $BBCode);
-    // On replace les balises deezer par des balises <iframe>
-    $BBCode = preg_replace('#\[deezer\](.+)\[/deezer\]#Us', '<iframe src="https://www.deezer.com/plugins/player?format=classic&autoplay=false&playlist=true&width=700&height=350&color=007FEB&layout=dark&size=medium&type=playlist&id=$1&app_id=1" width="700" height="350" frameborder="0"></iframe>', $BBCode);
-
 }

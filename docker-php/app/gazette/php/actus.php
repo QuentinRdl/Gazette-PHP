@@ -47,7 +47,19 @@ function affContenuL() : void {
     $tab = bdSelectArticlesActus($bd, $sql);
     //affArticlesDate($tab);
 
-    $currentPage = isset($_GET['page']) ? intval($_GET['page']) : 1; // Récupère le numéro de la page depuis l'URL
+    // $currentPage = isset($_GET['page']) ? intval($_GET['page']) : 1; // Récupère le numéro de la page depuis l'URL
+
+    $currentPage = 1;
+    // Déchiffrer l'identifiant de l'article à partir de l'URL
+    if(isset($_GET['page'])) {
+        $currentPage = dechiffrerURL($_GET['page']);
+    }
+
+    if ($currentPage == FALSE){ // FALSE car la fonction de déchiffrage retourne false en cas d'erreur
+        echo 'La fonction de déchiffrage n\'a pas réussi a déchiffre cette page';
+        return; // ==> fin de la fonction
+    }
+
     $perPage = 4; // Nombre d'articles à afficher par page
 
     // Appel de la fonction pour afficher les articles paginés
@@ -104,6 +116,9 @@ function affArticlesDate(array $articles, int $currentPage, int $perPage): void 
     $nbArticles = count($articles);
     $totalPages = ceil($nbArticles / $perPage); // Calcul du nombre de pages
 
+    // On affiche les boutons de navigation entre les pages
+    afficherBoutonsNavigation($currentPage, $perPage, $totalPages);
+
     // Boucle foreach pour parcourir les articles de la page actuelle
     for ($i = $startIndex; $i <= $endIndex && $i < $nbArticles; $i++) {
         $article = $articles[$i];
@@ -121,7 +136,7 @@ function affArticlesDate(array $articles, int $currentPage, int $perPage): void 
         
         // On regarde si on est à la fin de la page
         if($i + 1 >= $nbArticles) {
-            afficherBoutonsNavigation($currentPage, $perPage, $totalPages);
+            //afficherBoutonsNavigation($currentPage, $perPage, $totalPages);
             return;
         } 
 
@@ -132,7 +147,6 @@ function affArticlesDate(array $articles, int $currentPage, int $perPage): void 
         }
     }
 
-    afficherBoutonsNavigation($currentPage, $perPage, $totalPages);
 }
 
 /**
@@ -144,12 +158,17 @@ function affArticlesDate(array $articles, int $currentPage, int $perPage): void 
  */
 function afficherBoutonsNavigation($page, $perPage, $totalPages) {
     // Affichage des boutons de navigation entre les pages
-    
-    echo '<div class="pagination">';
+    $pageCourante  = $page;
+    echo '<section class="pages_actus">', '<p>';
     for ($page = 1; $page <= $totalPages; $page++) {
-        echo '<a href="?page=' . $page . '">' . $page . '</a>';
+        $pageChiffre = chiffrerPourURL($page);
+        if($page == $pageCourante) {
+            echo '<a class="courante" href="?page=' . $pageChiffre . '">' . $page . '</a>';
+        } else {
+            echo '<a href="?page=' . $pageChiffre . '">' . $page . '</a>';
+        }
     }
-    echo '</div>';
+    echo '</p>', '</section>';
 }
 
 

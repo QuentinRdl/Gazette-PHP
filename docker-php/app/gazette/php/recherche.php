@@ -139,7 +139,7 @@ function afficherFormulaireRecher(?array $err, ?string $mots=null): void {
         if ($mots != null) {
             $first = true;
             $mots = recuperationMotsValide($mots);
-            echo  '<div class="affichageResultats">', '<p>', 'Critère de recherche utilisés : "';
+            echo  '<div class="success">', '<p>', 'Critère de recherche utilisés : "';
             foreach($mots as $mot) {
                 if($first) {
                     $first = false;
@@ -168,9 +168,6 @@ function afficherFormulaireRecher(?array $err, ?string $mots=null): void {
                 }
                 $sql.= "LIKE '%$mot%' OR ArResume LIKE '%$mot%')";
             }
-            
-            // echo $sql;
-            // exit();
         }
 
         afficherFormulaireRecherche();
@@ -181,8 +178,6 @@ function afficherFormulaireRecher(?array $err, ?string $mots=null): void {
 
 
             $tab = bdSelectArticlesActus($bd, $sql);
-            // $article = $tab[0];
-            // echo "RESRSERSERESRESRSE\n\n\n\n";
 
             // pas d'articles --> fin de la fonction
             if ($tab == null || count($tab) == 0) {
@@ -198,18 +193,6 @@ function afficherFormulaireRecher(?array $err, ?string $mots=null): void {
 
             
         }
-        //afficherFormulaireRecherche();
-
-        /*
-        echo '<div>',
-        '<form method="POST" action="">',
-        '<input type="text" name="recherche">',
-        '<button type="submit">Rechercher</button>',
-        '</form>',
-        '</div>',
-        '</section>',
-        '</main>';
-        */
 }
 
 /**
