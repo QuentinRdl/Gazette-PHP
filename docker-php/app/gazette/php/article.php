@@ -20,7 +20,6 @@ affPiedDePage();
 // envoi du buffer
 ob_end_flush();
 
-
 /*********************************************************
  *
  * Définitions des fonctions locales de la page
@@ -176,4 +175,54 @@ function affErreurL(string $message) : void {
                 '<blockquote>', $message, '</blockquote>',
             '</section>',
         '</main>';
+}
+
+//_______________________________________________________________
+/**
+ * Convertir un string de BBCode en HTML.
+ *
+ * @param  string  $msg    le message d'erreur à afficher.
+ *
+ * @return void
+ */
+function convertBBCodeToHTML(string $BBCode) : string {
+    // On échape les caractères HTML pour éviter les attaques XSS
+
+    // On remplace les balises [b] par des balises <strong>
+    $BBCode = preg_replace('#\[b\](.+)\[/b\]#Us', '<strong>$1</strong>', $BBCode);
+    // On remplace les balises [i] par des balises <em>
+    $BBCode = preg_replace('#\[i\](.+)\[/i\]#Us', '<em>$1</em>', $BBCode);
+    // On remplace les balises [u] par des balises <u>
+    $BBCode = preg_replace('#\[u\](.+)\[/u\]#Us', '<u>$1</u>', $BBCode);
+    // On remplace les balises [s] par des balises <del>
+    $BBCode = preg_replace('#\[s\](.+)\[/s\]#Us', '<del>$1</del>', $BBCode);
+    // On remplace les balises [url] par des balises <a>
+    $BBCode = preg_replace('#\[url\](.+)\[/url\]#Us', '<a href="$1">$1</a>', $BBCode);
+    // On remplace les balises [url=...] par des balises <a>
+    $BBCode = preg_replace('#\[url=(.+)\](.+)\[/url\]#Us', '<a href="$1">$2</a>', $BBCode);
+    // On remplace les balises [img] par des balises <img>
+    $BBCode = preg_replace('#\[img\](.+)\[/img\]#Us', '<img src="$1" alt="Image">', $BBCode);
+    // On remplace les balises [quote] par des balises <blockquote>
+    $BBCode = preg_replace('#\[quote\](.+)\[/quote\]#Us', '<blockquote>$1</blockquote>', $BBCode);
+    // On remplace les balises [code] par des balises <pre>
+    $BBCode = preg_replace('#\[code\](.+)\[/code\]#Us', '<pre>$1</pre>', $BBCode);
+    // On remplace les balises [size=...] par des balises <span>
+    $BBCode = preg_replace('#\[size=(\d+)\](.+)\[/size\]#Us', '<span style="font-size: $1px">$2</span>', $BBCode);
+    // On remplace les balises [color=...] par des balises <span>
+    $BBCode = preg_replace('#\[color=(.+)\](.+)\[/color\]#Us', '<span style="color: $1">$2</span>', $BBCode);
+    // On remplace les balises [list] par des balises <ul>
+    $BBCode = preg_replace('#\[list\](.+)\[/list\]#Us', '<ul>$1</ul>', $BBCode);
+    // On remplace les balises [*] par des balises <li>
+    $BBCode = preg_replace('#\[\*\](.+)\[/\*\]#Us', '<li>$1</li>', $BBCode);
+    // On remplace les balises [center] par des balises <div>
+    $BBCode = preg_replace('#\[center\](.+)\[/center\]#Us', '<div style="text-align: center">$1</div>', $BBCode);
+    // On remplace les balises [right] par des balises <div>
+    $BBCode = preg_replace('#\[right\](.+)\[/right\]#Us', '<div style="text-align: right">$1</div>', $BBCode);
+    // On remplace les balises [justify] par des balises <div>
+    $BBCode = preg_replace('#\[justify\](.+)\[/justify\]#Us', '<div style="text-align: justify">$1</div>', $BBCode);
+    // On remplace les balises [left] par des balises <div>
+    $BBCode = preg_replace('#\[left\](.+)\[/left\]#Us', '<div style="text-align: left">$1</div>', $BBCode);
+    // On replace les balises deezer par des balises <iframe>
+    $BBCode = preg_replace('#\[deezer\](.+)\[/deezer\]#Us', '<iframe src="https://www.deezer.com/plugins/player?format=classic&autoplay=false&playlist=true&width=700&height=350&color=007FEB&layout=dark&size=medium&type=playlist&id=$1&app_id=1" width="700" height="350" frameborder="0"></iframe>', $BBCode);
+
 }

@@ -345,8 +345,8 @@ function chiffrerPourURL(string $input): string {
  */
 function dechiffrerIdArticleURL(string $donneesChiffreesEncodees): string|false {
     // Décodage URL
-    $donneesChiffrees = base64_decode(urldecode($donneesChiffreesEncodees));
-
+    // $donneesChiffrees = base64_decode(urldecode($donneesChiffreesEncodees));
+    $donneesChiffrees = base64_decode($donneesChiffreesEncodees);
     // Extraction de l'IV et de l'id chiffré
     $ivLength = openssl_cipher_iv_length('aes-128-cbc');
     $iv = substr($donneesChiffrees, 0, $ivLength);
