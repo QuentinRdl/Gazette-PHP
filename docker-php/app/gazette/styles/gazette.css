@@ -558,6 +558,19 @@ input[type=submit]:hover, input[type=reset]:hover {
     content: "\26AC\00A0";
 }
 
+.success {
+    /* We center */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: green;
+    font-size: 14px;
+    font-weight: bold;
+    width: 80%;
+    margin: 10px auto;
+    line-height: 1.5;
+}
+
 .centre .affichageResultats {
     color: green;
     font-size: 14px;

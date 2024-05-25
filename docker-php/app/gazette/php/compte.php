@@ -83,7 +83,7 @@ function affFormulaireInfoPerso(?array $err): void
 
     if (is_array($err)) {
         if(count($err) == 0) {
-            echo '<div class="succes">Les modifications ont bien été enregistrées.</div>';
+            echo '<div class="success">Les informations ont été mis à jour avec succès.</div>';
         } else {
             echo '<div class="erreur">Les erreurs suivantes ont été relevées :',
             '<ul>';
@@ -309,7 +309,7 @@ function affFormulaireMdp(? array $err): void {
 
     if (is_array($err)) {
         if(count($err) == 0) {
-            echo '<div class="succes">Le mot de passe a été changé avec succès.</div>';
+            echo '<div class="success">Le mot de passe a été changé avec succès.</div>';
         } else {
             echo '<div class="erreur">Les erreurs suivantes ont été relevées :',
             '<ul>';
