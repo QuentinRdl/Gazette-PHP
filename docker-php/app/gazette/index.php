@@ -34,17 +34,7 @@ ob_end_flush();
  */
 function affContenuL() : void {
 
-    /* Test HASH */
-
-    // Chiffrer l'identifiant de l'article pour l'URL
-    $idArticle = '-1'; // Exemple d'identifiant d'article
-    $idArticleChiffrePourURL = chiffrerPourURL($idArticle);
-
-    // Afficher l'URL avec l'identifiant chiffré
-   
-    /* Fin test HASH */
     echo '<main>';
-    echo '<a href="http://localhost:8080/gazette/php/article.php?id=', $idArticleChiffrePourURL, '">Cliquez ici</a>'; // Affichage test HASH
 
     $bd = bdConnect();
 

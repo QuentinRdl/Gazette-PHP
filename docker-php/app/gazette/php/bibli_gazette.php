@@ -190,7 +190,7 @@ function bdSelectArticlesL(mysqli $bd, string $sql) : array {
 /**
  * Affiche une erreur
  * @param string $mess le message à afficher
- * @param array $err la / les erreurs a afficher
+ * @param array $err la / les erreurs à afficher
  * @param bool $list si true, affiche chacune erreur sous forme de liste
  * sinon cela ne fait qu'un seul <li>
  * 
@@ -218,4 +218,21 @@ function afficherErreur(string $mess, array $err, bool $list) {
         echo '</li>';
     }
     echo '</ul>', '</div>';
+}
+
+/**
+ * Affichage d'un message d'erreur dans une zone dédiée de la page.
+ *
+ * @param string $message
+ * @return void
+ */
+function affErreurL(string $message) : void {
+    echo
+    '<main>',
+    '<section>',
+    '<h2>Oups, il y a eu une erreur...</h2>',
+    '<p>La page que vous avez demandée a terminé son exécution avec le message d\'erreur suivant :</p>',
+    '<blockquote>', $message, '</blockquote>',
+    '</section>',
+    '</main>';
 }

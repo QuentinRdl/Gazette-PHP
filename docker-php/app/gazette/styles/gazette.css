@@ -662,3 +662,11 @@ section > div.comment_form input[type="submit"]:hover {
     color: white;
     text-decoration: none;
 }
+
+.delete-form ul {
+    display: none;
+}
+
+.delete-form li:hover ul {
+    display: block;
+}
