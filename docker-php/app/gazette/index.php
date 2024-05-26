@@ -87,11 +87,22 @@ function affUnArticleL(int $id, string $titre) : void {
     // un string on converti l'entier en string
     $idChiffre = $id . "";
     $idChiffre = chiffrerPourURL($idChiffre);
-    echo
+    // On regarde s'il y a une image pour l'article
+    if (!file_exists('./upload/' . $id . '.jpg')) {
+        // Pas d'image on met la none.jpg
+        echo
             '<a href="./php/article.php?id=', $idChiffre, '">',
-                '<img src="upload/', $id, '.jpg" alt="Photo d\'illustration | ', $titre, '"><br>',
+                '<img src="images/none.jpg" alt="Pas de photo ! | ', $titre, '"><br>',
                 $titre,
             '</a>';
+    } else {
+        // Il y a une image, on l'affiche
+        echo
+        '<a href="./php/article.php?id=', $idChiffre, '">',
+        '<img src="upload/', $id, '.jpg" alt="Photo d\'illustration | ', $titre, '"><br>',
+        $titre,
+        '</a>';
+    }
 }
 //_______________________________________________________________
 /**
