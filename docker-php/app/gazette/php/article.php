@@ -129,14 +129,14 @@ function affContenuL() : void {
                 '</footer>',
             '</article>';
 
-    //pour accéder une seconde fois au premier enregistrement de la sélection
+    // Pour accéder une seconde fois au premier enregistrement de la sélection
     mysqli_data_seek($result, 0);
 
     // Génération du début de la zone de commentaires
     echo '<section>',
             '<h2>Réactions</h2>';
 
-    // s'il existe des commentaires, on les affiche un par un.
+    // S'il existe des commentaires, on les affiche un par un.
     afficherCommentaires($result, $tab);
 
     // Libération de la mémoire associée au résultat de la requête

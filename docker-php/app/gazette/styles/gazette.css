@@ -612,61 +612,116 @@ section.pages_actus p a:hover {
     text-decoration: none;
 }
 
-/* Fin pour actus.php */
-
-
-section > div.comment_form {
-    width: 90%;
-    margin: 20px auto; /* Centrer le formulaire */
-    background: #f9f9f9; /* Couleur de fond */
+/* Nouveau.php */
+.form_nouveau {
+    background-color: #f2f2f2;
     padding: 20px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Ombre autour du formulaire */
-    border-radius: 8px; /* Bordures arrondies */
-}
-
-/* Styles pour le titre du formulaire */
-section > div.comment_form h5 {
-    margin-bottom: 15px; /* Espacement avant le textarea */
-    color: #333; /* Couleur du texte */
-    font-size: 18px; /* Taille de la police */
-}
-
-/* Styles pour l'aire de texte */
-section > div.comment_form textarea {
-    width: calc(100% - 20px);
-    height: 100px;
-    padding: 10px;
-    border: 1px solid #ccc; /* Bordure grise */
-    border-radius: 4px; /* Bordures lÃ©gÃ¨rement arrondies */
-    resize: none; /* EmpÃªche le redimensionnement */
-}
-
-/* Styles pour le bouton */
-section > div.comment_form input[type="submit"] {
-    width: calc(100% - 20px);
-    height: 28px;
-    background-color: #f0f0f0;
-    font-size: 17px;
-    font-weight: bold;
-    border: solid 2px #444;
     border-radius: 5px;
-    padding: 2px 5px;
-    min-width: 30px;
-    cursor: pointer;
-    color: black;
-    text-decoration: none;
+    margin-bottom: 20px;
 }
 
-section > div.comment_form input[type="submit"]:hover {
-    background: red;
+.form_nouveau label {
+    font-weight: bold;
+}
+
+.form_nouveau input[type="text"],
+.form_nouveau textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.form_nouveau input[type="file"] {
+    margin-top: 10px;
+}
+
+.form_nouveau input[type="submit"] {
+    background-color: #4CAF50;
     color: white;
-    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    text-align: center;
 }
 
-.delete-form ul {
-    display: none;
+.form_nouveau input[type="submit"]:hover {
+    background-color: #45a049;
 }
 
-.delete-form li:hover ul {
+/* article.php Commentaires */
+/* CSS spécifique au formulaire de commentaire */
+.commentaire_form {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.commentaire_form h5 {
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.commentaire_form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.commentaire_form input[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.commentaire_form input[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+/* Edition.php */
+
+.article-edit {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.article-edit h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
     display: block;
+    font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.form-group input[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.form-group input[type="submit"]:hover {
+    background-color: #45a049;
 }

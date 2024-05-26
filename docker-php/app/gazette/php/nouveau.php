@@ -189,7 +189,7 @@ function affContenuPageNouveau($errors) : void {
    }
 
 
-    echo '<form action="nouveau.php" method="post" enctype="multipart/form-data">',
+    echo '<form action="nouveau.php" method="post" enctype="multipart/form-data" class ="form_nouveau">',
         '<label for="title">Titre:</label>',
         '<input type="text" id="title" name="title" value=""><br>',
 

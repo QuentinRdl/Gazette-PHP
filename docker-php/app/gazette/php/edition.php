@@ -97,26 +97,30 @@ function afficherContenuEdition($idArticle) : void {
     $tab = mysqli_fetch_assoc($result);
     mysqli_close($bd);
 
-    echo '<main> <section> <h2>Édition de l\'article</h2>';
-    // On affiche le formulaire pour modifier le titre avec le titre actuel
+    echo '<main> <section class="article-edit"> <h2>Édition de l\'article</h2>';
+    // On affiche le formulaire pour modifier le titre
     echo '<form method="post" action="edition.php">';
     echo '<input type="hidden" name="id" value="', $idArticle, '">';
+    echo '<div class="form-group">';
     echo '<label for="titre">Titre de l\'article : </label>';
     echo '<input type="text" name="titre" id="titre" value="', $tab['arTitre'], '"><br>';
+    echo '</div>';
 
     // On affiche le formulaire pour modifier le résumé avec le résumé actuel
+    echo '<div class="form-group">';
     echo '<label for="resume">Résumé de l\'article : </label>';
     echo '<input type="text" name="resume" id="resume" value="', $tab['arResume'], '"><br>';
-
+    echo '</div>';
 
     // On affiche le texte de l'article
+    echo '<div class="form-group">';
     echo '<label for="texte">Texte de l\'article : </label>';
     echo '<textarea name="texte" id="texte" rows="10" cols="50">', $tab['arTexte'], '</textarea><br>';
+    echo '</div>';
     echo '<input type="submit" value="Modifier">';
     echo '</form>';
 
-
-// Formulaire de confirmation de suppression
+    // Formulaire de confirmation de suppression
     echo '<form method="post" action="', htmlspecialchars($_SERVER['PHP_SELF']), '">';
     echo '<input type="hidden" name="id" value="', htmlspecialchars($idArticle), '">';
     echo '<input type="hidden" name="action" value="delete">';
@@ -124,6 +128,7 @@ function afficherContenuEdition($idArticle) : void {
     echo '</form>';
 
     echo '</section> </main>';
+
 }
 
 /**
