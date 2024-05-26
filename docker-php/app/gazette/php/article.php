@@ -163,7 +163,7 @@ function affContenuL() : void {
         '<section>',
         '<div class="commentaire_form">',
         '<h5>Ajouter un commentaire</h5>',
-        '<form method="post" action="">', // L'action est vide pour soumettre le formulaire à la même pag
+        '<form method="post" action="">', // L'action est vide pour send le form à la mm page
         '<textarea id="comment" name="comment"></textarea>',
         '<input id="submit" type="submit" value="Publier ce commentaire">',
         '</form>',

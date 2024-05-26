@@ -53,5 +53,5 @@ echo        '</ul>',
 // affichage du pied de page
 affPiedDePage();
 
-// facultatif car fait automatiquement par PHP
+// facultatif, car fait automatiquement par PHP
 ob_end_flush();

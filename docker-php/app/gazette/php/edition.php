@@ -97,7 +97,7 @@ function afficherContenuEdition($idArticle) : void {
     $tab = mysqli_fetch_assoc($result);
     mysqli_close($bd);
 
-    echo '<main> <section>';
+    echo '<main> <section> <h2>Édition de l\'article</h2>';
     // On affiche le formulaire pour modifier le titre avec le titre actuel
     echo '<form method="post" action="edition.php">';
     echo '<input type="hidden" name="id" value="', $idArticle, '">';
@@ -170,28 +170,25 @@ function envoyerModifBDD($titre, $resume, $texte, $idArticle) : void {
 }
 
 /**
- * Affiche un bouton qui permet de supprimer un article, et un message de confirmation
- * sous la forme d'une popup
- * @param $idArticle
- * @return void
- */
-function afficherSupressionArticle($idArticle) : void {
-    echo '<main> <section>';
-    echo '<button onclick="supprimerArticle(', $idArticle, ')">Supprimer l\'article</button>';
-
-
-
-
-    echo '</section> </main>';
-
-}
-
-/**
- *
+ * Supprime un article de la base de données
  * @param $idArticle
  * @return void
  */
 function supprimerArticle($idArticle) : void {
     // On se connecte à la BDD
+    $bd = bdConnect();
 
+    // On supprime d'abord les commentaires associés à l'article
+    $sql = 'DELETE FROM commentaire WHERE coArticle = ' . $idArticle;
+    bdSendRequest($bd, $sql);
+
+    // Ensuite, on supprime l'article
+    $sql = 'DELETE FROM article WHERE arID = ' . $idArticle;
+    bdSendRequest($bd, $sql);
+
+    // On ferme la connexion
+    mysqli_close($bd);
+
+    // On redirige l'utilisateur vers la page d'accueil
+    header('Location: ../index.php');
 }
