@@ -139,10 +139,8 @@ function affContenuL() : void {
     // s'il existe des commentaires, on les affiche un par un.
     afficherCommentaires($result, $tab);
 
-
     // Libération de la mémoire associée au résultat de la requête
     mysqli_free_result($result);
-
 
     // On regarde si l'user est authentifié, puis si c'est un auteur
     $authentifie = $redacteur = 0;
@@ -247,7 +245,7 @@ function afficherCommentaires($result, $tab) : void {
 function ajouterCommentaire() : void {
 
     if(!isset($_SESSION['pseudo'])) {
-        echo 'Session pseudo not set';
+        echo 'Non authentifie';
         return;
     }
     // On enlève les balises HTML
@@ -291,8 +289,6 @@ function ajouterCommentaire() : void {
  * @return void
  */
 function deleteComment($IDCommentaire) : void {
-    echo $IDCommentaire, ' = idArticle!!!';
-    echo '$test testetsts';
     // On ouvre la connexion à la BDD
     $bd = bdConnect();
     // On supprime le commentaire ayant coID = $IDCommentaire

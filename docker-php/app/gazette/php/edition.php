@@ -9,8 +9,6 @@ ob_start();
 // démarrage ou reprise de la session
 session_start();
 
-
-
 affEntete('Edition');
 
 $idArticle = NULL;
@@ -43,23 +41,25 @@ if (!isset($_SESSION['redacteur']) || !$_SESSION['redacteur']) {
     }
 }
 
-
+// On vérifie si l'utilisateur a soumis le formulaire
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $titre = $_POST['titre'];
-    $resume = $_POST['resume'];
-    $texte = $_POST['texte'];
-    $idArticle = $_POST['id'];
-    $idArticleNonChiffre = $_POST['id'];
-    // Utilisez les variables $titre, $resume, $texte et $idArticle comme vous le souhaitez
-    // Par exemple, vous pouvez les passer à une autre fonction
-    envoyerModifBDD($titre, $resume, $texte, $idArticle);
-    echo 'OUAIS !';
+    if (isset($_POST['action']) && $_POST['action'] === 'delete') {
+        // L'utilisateur veut supprimer l'article
+        $idArticle = $_POST['id'];
+        supprimerArticle($idArticle);
+        echo '<p>L\'article a été supprimé.</p>';
+    } else {
+        // L'utilisateur veut modifier l'article
+        $titre = $_POST['titre'];
+        $resume = $_POST['resume'];
+        $texte = $_POST['texte'];
+        $idArticle = $_POST['id'];
+        $idArticleNonChiffre = $_POST['id'];
+        // Utilisez les variables $titre, $resume, $texte et $idArticle comme vous le souhaitez
+        // Par exemple, vous pouvez les passer à une autre fonction
+        envoyerModifBDD($titre, $resume, $texte, $idArticle);
+    }
 }
-
-
-
-
-
 
 if($err == 0) {
     // S'il n'y a pas d'erreur, on affiche le contenu de l'édition
@@ -73,6 +73,11 @@ if($err == 0) {
 // envoi du buffer
 ob_end_flush();
 
+/**
+ * Affiche le contenu de l'article et on peut le modifier
+ * @param   int     $idArticle   Identifiant de l'article à modifier
+ * @return  void
+ */
 function afficherContenuEdition($idArticle) : void {
     $bd = bdConnect();
     // On récupère les informations sur l'article
@@ -92,6 +97,7 @@ function afficherContenuEdition($idArticle) : void {
     $tab = mysqli_fetch_assoc($result);
     mysqli_close($bd);
 
+    echo '<main> <section>';
     // On affiche le formulaire pour modifier le titre avec le titre actuel
     echo '<form method="post" action="edition.php">';
     echo '<input type="hidden" name="id" value="', $idArticle, '">';
@@ -108,5 +114,84 @@ function afficherContenuEdition($idArticle) : void {
     echo '<textarea name="texte" id="texte" rows="10" cols="50">', $tab['arTexte'], '</textarea><br>';
     echo '<input type="submit" value="Modifier">';
     echo '</form>';
+
+
+// Formulaire de confirmation de suppression
+    echo '<form method="post" action="', htmlspecialchars($_SERVER['PHP_SELF']), '">';
+    echo '<input type="hidden" name="id" value="', htmlspecialchars($idArticle), '">';
+    echo '<input type="hidden" name="action" value="delete">';
+    echo '<input type="submit" value="Supprimer l\'article" onclick="return confirm(\'Êtes-vous sûr de vouloir supprimer cet article ?\');">';
+    echo '</form>';
+
+    echo '</section> </main>';
 }
 
+/**
+ * Envoie les modifications à la base de données
+ * @param   string  $titre      Titre de l'article
+ * @param   string  $resume     Résumé de l'article
+ * @param   string  $texte      Texte de l'article
+ * @param   int     $idArticle  Identifiant de l'article
+ * @return  void
+ */
+function envoyerModifBDD($titre, $resume, $texte, $idArticle) : void {
+    // On enlève les balises HTML
+    $titre = strip_tags($titre);
+    $resume = strip_tags($resume);
+    $texte = strip_tags($texte);
+
+    // On regarde si aucun des champs n'est vide
+    if (empty($titre) || empty($resume) || empty($texte)) {
+        echo '</main>';
+        affErreurL('Un ou plusieurs champs sont vides');
+        header('Location: ./edition.php?id=' . chiffrerPourURL($idArticle));
+        return;
+    }
+    // On récupère la date sous la forme DD MM YYYY HH MM
+    $year = date('Y');
+    $month = date('m');
+    $day = date('d');
+    $heure = date('H');
+    $minute = date('i');
+    $date = $year . $month . $day . $heure . $minute;
+
+    $bd = bdConnect();
+    $sql = 'UPDATE article
+            SET arTitre = "' . $titre . '",
+                arResume = "' . $resume . '",
+                arTexte = "' . $texte . '",
+                arDateModif = ' . $date . '
+            WHERE arID = ' . $idArticle;
+    bdSendRequest($bd, $sql);
+    mysqli_close($bd);
+
+    // On redirige l'utilisateur vers la page de l'article
+    header('Location: ./article.php?id=' . chiffrerPourURL($idArticle));
+}
+
+/**
+ * Affiche un bouton qui permet de supprimer un article, et un message de confirmation
+ * sous la forme d'une popup
+ * @param $idArticle
+ * @return void
+ */
+function afficherSupressionArticle($idArticle) : void {
+    echo '<main> <section>';
+    echo '<button onclick="supprimerArticle(', $idArticle, ')">Supprimer l\'article</button>';
+
+
+
+
+    echo '</section> </main>';
+
+}
+
+/**
+ *
+ * @param $idArticle
+ * @return void
+ */
+function supprimerArticle($idArticle) : void {
+    // On se connecte à la BDD
+
+}
