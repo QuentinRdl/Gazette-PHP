@@ -33,7 +33,7 @@ ob_end_flush();
  * Définitions des fonctions locales de la page
  *
  *********************************************************/
-//_______________________________________________________________
+
 /**
  * Affichage du contenu principal de la page
  *
@@ -174,7 +174,6 @@ function affContenuL() : void {
     echo '</main>';
 }
 
-//___________________________________________________________________
 /**
  * Renvoie une copie de la chaîne UTF8 transmise en paramètre après avoir mis sa
  * première lettre en majuscule et toutes les suivantes en minuscule
@@ -234,6 +233,7 @@ function afficherCommentaires($result, $tab) : void {
         echo '<p>Il n\'y a pas de commentaires pour cet article. </p>';
     }
 }
+
 /**
  * Ajoute un commentaire à un article
  * Cette fonction est appelée si le formulaire de commentaire a été envoyé
